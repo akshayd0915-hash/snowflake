@@ -32,6 +32,11 @@ This project simulates a real banking data engineering workload covering:
 
 \---
 
+## 📊 Data Lineage Graph
+
+![dbt Lineage Graph](docs/lineage_graph.png)
+
+---
 
 
 \## 🏗️ Architecture
