@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: raw
+    database: BANKING_DW
+    schema: RAW
+    tables:
+      - name: customers
+        description: Raw customer data
+      - name: accounts
+        description: Raw account data
+      - name: transactions
+        description: Raw transaction data
+      - name: loans
+        description: Raw loan data
+      - name: fraud_flags
+        description: Raw fraud flag data

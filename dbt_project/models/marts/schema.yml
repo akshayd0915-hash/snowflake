@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: mart_customer_360
+    description: Complete customer profile with account, loan and fraud summary
+    columns:
+      - name: customer_id
+        description: Primary key
+        tests:
+          - unique
+          - not_null
+      - name: total_balance
+        tests:
+          - not_null
+
+  - name: mart_transaction_analytics
+    description: Monthly transaction aggregations per customer
+    columns:
+      - name: transaction_month
+        tests:
+          - not_null
+
+  - name: mart_loan_risk
+    description: Loan risk tier and metrics per loan
+    columns:
+      - name: loan_id
+        tests:
+          - unique
+          - not_null
+
+  - name: mart_fraud_detection
+    description: Fraud summary per customer
+    columns:
+      - name: customer_id
+        tests:
+          - unique
+          - not_null
