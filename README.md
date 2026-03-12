@@ -36,47 +36,16 @@ This project simulates a real banking data engineering workload covering:
 
 ![dbt Lineage Graph](docs/lineage_graph.png)
 
----
+## 🏗️ Architecture
 
-
-\## 🏗️ Architecture
-
-```
-
-Source CSVs (Python generated)
-
-&#x20;       │
-
-&#x20;       ▼
-
-RAW Schema (Snowflake)         ← Python ELT ingestion script
-
-&#x20;       │
-
-&#x20;       ▼
-
-Staging Layer (dbt views)      ← stg\_\* models: cast, rename, clean
-
-&#x20;       │
-
-&#x20;       ▼
-
-Intermediate Layer (dbt views) ← int\_\* models: joins, business logic
-
-&#x20;       │
-
-&#x20;       ▼
-
-Mart Layer (dbt tables)        ← mart\_\* models: star schema, aggregations
-
-&#x20;       │
-
-&#x20;       ▼
-
-Analytics / Reporting          ← BI tools, compliance, audit
-
-```
-
+| Layer | Tool | Description |
+|---|---|---|
+| 1. Source | Python | CSV files generated with realistic banking data |
+| 2. Raw | Snowflake | Unmodified source tables loaded via Python ELT script |
+| 3. Staging | dbt views | `stg_*` models — cast, rename, clean raw data |
+| 4. Intermediate | dbt views | `int_*` models — joins and business logic |
+| 5. Marts | dbt tables | `mart_*` models — star schema, aggregations, risk tiers |
+| 6. Consumption | BI / Compliance | Analytics, reporting, audit trails |
 
 
 \---
