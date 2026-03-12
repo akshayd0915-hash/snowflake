@@ -1,0 +1,54 @@
+name: dbt CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  dbt-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dbt
+        run: pip install dbt-snowflake
+
+      - name: Create dbt profiles
+        run: |
+          mkdir -p ~/.dbt
+          cat <<EOF > ~/.dbt/profiles.yml
+          dbt_project:
+            outputs:
+              dev:
+                type: snowflake
+                account: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+                user: ${{ secrets.SNOWFLAKE_USER }}
+                password: ${{ secrets.SNOWFLAKE_PASSWORD }}
+                role: ACCOUNTADMIN
+                warehouse: COMPUTE_WH
+                database: BANKING_DW
+                schema: DBT_DEV
+                threads: 4
+            target: dev
+          EOF
+
+      - name: dbt debug
+        working-directory: dbt_project
+        run: dbt debug
+
+      - name: dbt run
+        working-directory: dbt_project
+        run: dbt run
+
+      - name: dbt test
+        working-directory: dbt_project
+        run: dbt test
