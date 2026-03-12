@@ -1,40 +1,25 @@
-\# 🏦 Banking Data Platform — Snowflake + dbt
+# 🏦 Banking Data Platform — Snowflake + dbt
 
+A production-style banking data platform built with Snowflake and dbt Core, demonstrating end-to-end ELT pipeline design, dimensional data modeling, and data quality practices for a regulated financial services environment.
 
+---
 
-A production-style banking data platform built with Snowflake and dbt Core,
-
-demonstrating end-to-end ELT pipeline design, dimensional data modeling,
-
-and data quality practices for a regulated financial services environment.
-
-
-
-\---
-
-
-
-\## 📌 Project Overview
-
-
+## 📌 Project Overview
 
 This project simulates a real banking data engineering workload covering:
 
-\- \*\*Customer 360\*\* — unified customer profile with account, loan and fraud data
+- **Customer 360** — unified customer profile with account, loan and fraud data
+- **Transaction Analytics** — monthly aggregations by channel, category and customer
+- **Loan Risk Analysis** — DTI ratio, LTV, risk tiering and delinquency tracking
+- **Fraud Detection** — fraud scoring, risk levels and customer-level fraud summaries
 
-\- \*\*Transaction Analytics\*\* — monthly aggregations by channel, category and customer
-
-\- \*\*Loan Risk Analysis\*\* — DTI ratio, LTV, risk tiering and delinquency tracking
-
-\- \*\*Fraud Detection\*\* — fraud scoring, risk levels and customer-level fraud summaries
-
-
-
-\---
+---
 
 ## 📊 Data Lineage Graph
 
 ![dbt Lineage Graph](docs/lineage_graph.png)
+
+---
 
 ## 🏗️ Architecture
 
@@ -47,330 +32,147 @@ This project simulates a real banking data engineering workload covering:
 | 5. Marts | dbt tables | `mart_*` models — star schema, aggregations, risk tiers |
 | 6. Consumption | BI / Compliance | Analytics, reporting, audit trails |
 
+---
 
-\---
-
-
-
-\## 📂 Project Structure
-
+## 📂 Project Structure
 ```
-
-banking-dbt-snowflake/
-
-│
-
+snowflake/
 ├── ingestion/
-
-│   ├── generate\_data.py          # Generates realistic banking CSV data
-
-│   └── load\_to\_snowflake.py      # Loads CSVs into Snowflake RAW schema
-
-│
-
-├── dbt\_project/
-
+│   ├── generate_data.py
+│   └── load_to_snowflake.py
+├── dbt_project/
 │   ├── models/
-
-│   │   ├── staging/              # stg\_\* models — clean raw data
-
-│   │   │   ├── stg\_customers.sql
-
-│   │   │   ├── stg\_accounts.sql
-
-│   │   │   ├── stg\_transactions.sql
-
-│   │   │   ├── stg\_loans.sql
-
-│   │   │   ├── stg\_fraud\_flags.sql
-
-│   │   │   └── sources.yml
-
-│   │   │
-
-│   │   ├── intermediate/         # int\_\* models — business logic
-
-│   │   │   ├── int\_customer\_accounts.sql
-
-│   │   │   ├── int\_transaction\_enriched.sql
-
-│   │   │   └── int\_loan\_risk.sql
-
-│   │   │
-
-│   │   └── marts/                # mart\_\* models — analytics ready
-
-│   │       ├── mart\_customer\_360.sql
-
-│   │       ├── mart\_transaction\_analytics.sql
-
-│   │       ├── mart\_loan\_risk.sql
-
-│   │       ├── mart\_fraud\_detection.sql
-
-│   │       └── schema.yml
-
-│   │
-
-│   └── dbt\_project.yml
-
-│
-
+│   │   ├── staging/
+│   │   ├── intermediate/
+│   │   └── marts/
+│   ├── snapshots/
+│   │   └── scd2_customers.sql
+│   └── dbt_project.yml
+├── docs/
+│   └── lineage_graph.png
+├── .github/
+│   └── workflows/
+│       └── dbt_ci.yml
 └── README.md
-
 ```
 
+---
 
-
-\---
-
-
-
-\## 🔧 Tech Stack
-
-
+## 🔧 Tech Stack
 
 | Tool | Purpose |
-
 |---|---|
-
 | Snowflake | Cloud data warehouse — storage, compute, security |
-
 | dbt Core | Data transformation, testing, documentation, lineage |
-
 | Python | Data generation and ELT ingestion pipeline |
-
+| GitHub Actions | CI/CD — runs dbt run and dbt test on every push |
 | Git + GitHub | Version control and portfolio hosting |
 
+---
 
-
-\---
-
-
-
-\## 📊 Data Model
-
-
+## 📊 Data Model
 
 | Layer | Models | Materialization |
-
 |---|---|---|
+| Staging | stg_customers, stg_accounts, stg_transactions, stg_loans, stg_fraud_flags | Views |
+| Intermediate | int_customer_accounts, int_transaction_enriched, int_loan_risk | Views |
+| Marts | mart_customer_360, mart_transaction_analytics, mart_loan_risk, mart_fraud_detection | Tables |
+| Snapshots | scd2_customers | SCD2 table |
 
-| Staging | stg\_customers, stg\_accounts, stg\_transactions, stg\_loans, stg\_fraud\_flags | Views |
+### Key modeling concepts demonstrated
 
-| Intermediate | int\_customer\_accounts, int\_transaction\_enriched, int\_loan\_risk | Views |
+- **Star schema** — fact and dimension separation in mart layer
+- **SCD2** — full customer history tracking with valid_from / valid_to timestamps
+- **Risk tiering** — DTI ratio, LTV, fraud scoring with business rule logic
+- **Null handling** — coalesce patterns for outer join safety
+- **Data quality tests** — not_null and unique constraints on all primary keys
 
-| Marts | mart\_customer\_360, mart\_transaction\_analytics, mart\_loan\_risk, mart\_fraud\_detection | Tables |
+---
 
-
-
-\### Key modeling concepts demonstrated
-
-\- \*\*Star schema\*\* — fact and dimension separation in mart layer
-
-\- \*\*SCD-ready\*\* — customer 360 mart built with unique key for incremental updates
-
-\- \*\*Risk tiering\*\* — DTI ratio, LTV, fraud scoring with business rule logic
-
-\- \*\*Null handling\*\* — coalesce patterns for outer join safety
-
-\- \*\*Data quality tests\*\* — not\_null and unique constraints on all primary keys
-
-
-
-\---
-
-
-
-\## 🏦 Banking Domain Coverage
-
-
+## 🏦 Banking Domain Coverage
 
 | Business Area | dbt Model | Key Metrics |
-
 |---|---|---|
+| Customer 360 | mart_customer_360 | Total balance, credit limit, fraud risk level |
+| Transaction Analytics | mart_transaction_analytics | Monthly spend, channel mix, flagged count |
+| Loan Risk | mart_loan_risk | DTI ratio, LTV, risk tier, delinquency flag |
+| Fraud Detection | mart_fraud_detection | Fraud score, risk level, flagged transactions |
+| Customer History | scd2_customers | Full SCD2 history with valid_from / valid_to |
 
-| Customer 360 | mart\_customer\_360 | Total balance, credit limit, fraud risk level |
+---
 
-| Transaction Analytics | mart\_transaction\_analytics | Monthly spend, channel mix, flagged count |
+## ✅ Data Quality
 
-| Loan Risk | mart\_loan\_risk | DTI ratio, LTV, risk tier, delinquency flag |
+- 8 automated dbt tests across all mart models
+- not_null tests on all primary and critical business keys
+- unique tests on customer_id, loan_id, fraud customer_id
+- All tests passing: PASS=8 WARN=0 ERROR=0
 
-| Fraud Detection | mart\_fraud\_detection | Fraud score, risk level, flagged transactions |
+---
 
+## 🚀 How to Run
 
-
-\---
-
-
-
-\## ✅ Data Quality
-
-
-
-\- 8 automated dbt tests across all mart models
-
-\- not\_null tests on all primary and critical business keys
-
-\- unique tests on customer\_id, loan\_id, fraud customer\_id
-
-\- All tests passing: PASS=8 WARN=0 ERROR=0
-
-
-
-\---
-
-
-
-\## 🚀 How to Run
-
-
-
-\### Prerequisites
-
-\- Python 3.8+
-
-\- Snowflake account
-
-\- dbt Core with dbt-snowflake adapter
-
-
-
-\### Setup
-
-
-
-\*\*1. Clone the repo\*\*
-
+**1. Clone the repo**
 ```bash
-
 git clone https://github.com/akshayd0915-hash/snowflake.git
-
 cd snowflake
-
 ```
 
-
-
-\*\*2. Install dependencies\*\*
-
+**2. Install dependencies**
 ```bash
-
 pip install dbt-snowflake snowflake-connector-python
-
 ```
 
-
-
-\*\*3. Configure dbt profile\*\*
-
-
-
-Create `\~/.dbt/profiles.yml`:
-
+**3. Configure dbt profile** — create `~/.dbt/profiles.yml`:
 ```yaml
-
-dbt\_project:
-
-&#x20; outputs:
-
-&#x20;   dev:
-
-&#x20;     type: snowflake
-
-&#x20;     account: <your\_account>
-
-&#x20;     user: <your\_username>
-
-&#x20;     password: <your\_password>
-
-&#x20;     role: ACCOUNTADMIN
-
-&#x20;     warehouse: COMPUTE\_WH
-
-&#x20;     database: BANKING\_DW
-
-&#x20;     schema: DBT\_DEV
-
-&#x20;     threads: 4
-
-&#x20; target: dev
-
+dbt_project:
+  outputs:
+    dev:
+      type: snowflake
+      account: <your_account>
+      user: <your_username>
+      password: <your_password>
+      role: ACCOUNTADMIN
+      warehouse: COMPUTE_WH
+      database: BANKING_DW
+      schema: DBT_DEV
+      threads: 4
+  target: dev
 ```
 
-
-
-\*\*4. Generate and load data\*\*
-
+**4. Generate and load data**
 ```bash
-
-python ingestion/generate\_data.py
-
-python ingestion/load\_to\_snowflake.py
-
+python ingestion/generate_data.py
+python ingestion/load_to_snowflake.py
 ```
 
-
-
-\*\*5. Run dbt models\*\*
-
+**5. Run dbt models**
 ```bash
-
-cd dbt\_project
-
+cd dbt_project
 dbt run
-
 dbt test
-
 ```
 
-
-
-\*\*6. View data lineage\*\*
-
+**6. View data lineage**
 ```bash
-
 dbt docs generate
-
 dbt docs serve
-
 ```
 
+---
 
-
-\---
-
-
-
-\## 📈 Data Volume
-
-
+## 📈 Data Volume
 
 | Table | Rows |
-
 |---|---|
-
 | RAW.customers | 200 |
-
 | RAW.accounts | 350 |
-
 | RAW.transactions | 2,000 |
-
 | RAW.loans | 150 |
+| RAW.fraud_flags | 100 |
 
-| RAW.fraud\_flags | 100 |
+---
 
+## 👤 Author
 
-
-\---
-
-
-
-\## 👤 Author
-
-
-
-Built by Akshay Dubey as a portfolio project targeting
-
-data engineering roles in the banking and financial services domain.
-
+Built by Akshay Dubey as a portfolio project targeting data engineering roles in the banking and financial services domain.
