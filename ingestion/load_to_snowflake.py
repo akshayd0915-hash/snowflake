@@ -4,8 +4,8 @@ import os
 
 # ── connection ────────────────────────────────────────────
 conn = snowflake.connector.connect(
-    account   = "vmc37348.us-east-1",
-    user      = "AKSHAYDUBEY",
+    account   = "mec15672.us-east-1",
+    user      = "AKSHAYDUBEY401",
     password  = input("Enter your Snowflake password: "),
     warehouse = "COMPUTE_WH",
     database  = "BANKING_DW",
